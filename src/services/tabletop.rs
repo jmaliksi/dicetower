@@ -43,8 +43,13 @@ async fn get_tabletop(mut db: Connection<Db>, ttid: i32) -> Result<Json<Tabletop
         .filter(id.eq(&ttid))
         .select(Tabletop::as_select())
         .first(&mut db)
-        .await?;
-    Ok(Json(result))
+        .await
+        .optional();
+    match result{
+        Ok(Some(result)) => Ok(Json(result)),
+        Ok(None) => Err(NotFound),
+        Err(_) => panic!("aa"),
+    }
 }
 
 pub fn stage() -> AdHoc {
