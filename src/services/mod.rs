@@ -6,6 +6,8 @@ use rocket_db_pools::{Database, Connection};
 use rocket_db_pools::diesel::{PgPool, prelude::*};
 use rocket::fairing::AdHoc;
 
+pub mod tabletop;
+
 type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
 
 #[derive(Database)]

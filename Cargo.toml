@@ -4,19 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rocket = { version = "0.5.1", features = ["json", "uuid"] }
-diesel = { version = "2.0.0", features = ["postgres", "serde_json", "chrono", "uuid", "r2d2"] }
+rocket = { version = "0.5.1", features = ["json"] }
+diesel = { version = "2.0.0", features = ["postgres", "serde_json"] }
 dotenvy = "0.15.7"
 serde = "1.0.208"
-chrono = { version = "0.4.38", features = ["serde"] }
-
-[dependencies.uuid]
-version = "1.10.0"
-features = [
-    "v4",
-    "fast-rng",
-    "serde",
-]
 
 [dependencies.rocket_db_pools]
 version = "0.2.0"

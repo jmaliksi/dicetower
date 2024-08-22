@@ -3,7 +3,8 @@
 diesel::table! {
     cards (id) {
         id -> Int4,
-        archetype -> Nullable<Int4>,
+        archetype_id -> Int4,
+        #[max_length = 25]
         name -> Varchar,
         body -> Nullable<Text>,
         image -> Nullable<Text>,
@@ -13,17 +14,18 @@ diesel::table! {
 diesel::table! {
     deck_archetypes (id) {
         id -> Int4,
+        #[max_length = 80]
         name -> Varchar,
     }
 }
 
 diesel::table! {
     decks (id) {
-        id -> Uuid,
+        id -> Int4,
         #[max_length = 40]
         name -> Varchar,
-        game -> Uuid,
-        archetype -> Int4,
+        tabletop_id -> Nullable<Int4>,
+        archetype_id -> Int4,
         draw_pile -> Nullable<Array<Nullable<Int4>>>,
         discard_pile -> Nullable<Array<Nullable<Int4>>>,
     }
@@ -31,24 +33,36 @@ diesel::table! {
 
 diesel::table! {
     players (id) {
-        id -> Uuid,
+        id -> Int4,
+        user_id -> Int4,
+        #[max_length = 40]
         name -> Varchar,
-        game -> Nullable<Uuid>,
+        tabletop_id -> Int4,
     }
 }
 
 diesel::table! {
     tabletops (id) {
-        id -> Uuid,
+        id -> Int4,
+        user_id -> Int4,
+        #[max_length = 80]
         name -> Varchar,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
     }
 }
 
-diesel::joinable!(cards -> deck_archetypes (archetype));
-diesel::joinable!(decks -> deck_archetypes (archetype));
-diesel::joinable!(decks -> tabletops (game));
-diesel::joinable!(players -> tabletops (game));
+diesel::table! {
+    users (id) {
+        id -> Int4,
+    }
+}
+
+diesel::joinable!(cards -> deck_archetypes (archetype_id));
+diesel::joinable!(decks -> deck_archetypes (archetype_id));
+diesel::joinable!(decks -> tabletops (tabletop_id));
+diesel::joinable!(players -> tabletops (tabletop_id));
+diesel::joinable!(players -> users (user_id));
+diesel::joinable!(tabletops -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     cards,
@@ -56,4 +70,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     decks,
     players,
     tabletops,
+    users,
 );
