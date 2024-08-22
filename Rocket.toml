@@ -1,0 +1,3 @@
+[default.databases.dicetower]
+url = "postgres://postgres:password@localhost/dicetower"
+pool = { max_size = 10 }

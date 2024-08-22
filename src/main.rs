@@ -1,3 +1,6 @@
+extern crate rocket;
+extern crate rocket_db_pools;
+
 pub mod models;
 pub mod schema;
 pub mod services;
@@ -10,6 +13,6 @@ async fn index() -> &'static str {
 #[rocket::launch]
 async fn rocket() -> _ {
     rocket::build()
+        .attach(services::stage())
         .mount("/", rocket::routes![index])
-        .mount("/test", rocket::routes![services::test_endpoint])
 }
