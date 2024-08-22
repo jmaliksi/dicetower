@@ -5,6 +5,9 @@ pub mod models;
 pub mod schema;
 pub mod services;
 
+use dotenvy::dotenv;
+use std::env;
+
 #[rocket::get("/")]
 async fn index() -> &'static str {
     "hello world"
@@ -12,7 +15,13 @@ async fn index() -> &'static str {
 
 #[rocket::launch]
 async fn rocket() -> _ {
-    rocket::build()
+    dotenv().ok();
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not set!");
+    let figment = rocket::Config::figment().merge((
+        "databases.dicetower.url",
+        db_url,
+    ));
+    rocket::custom(figment)
         .attach(services::stage())
         .mount("/", rocket::routes![index])
 }
