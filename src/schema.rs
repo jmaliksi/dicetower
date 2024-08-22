@@ -20,9 +20,10 @@ diesel::table! {
 diesel::table! {
     decks (id) {
         id -> Uuid,
+        #[max_length = 40]
         name -> Varchar,
-        game -> Nullable<Uuid>,
-        archetype -> Nullable<Int4>,
+        game -> Uuid,
+        archetype -> Int4,
         draw_pile -> Nullable<Array<Nullable<Int4>>>,
         discard_pile -> Nullable<Array<Nullable<Int4>>>,
     }

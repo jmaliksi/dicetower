@@ -1,8 +1,14 @@
 CREATE TABLE decks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR NOT NULL,
-    game UUID REFERENCES tabletops(id),
-    archetype INT REFERENCES deck_archetypes(id),
+    name VARCHAR(40) NOT NULL,
+    game UUID NOT NULL,
+    archetype INT NOT NULL,
     draw_pile INT[],
-    discard_pile INT[]
+    discard_pile INT[],
+    CONSTRAINT fk_archetype
+        FOREIGN KEY(archetype)
+        REFERENCES deck_archetypes(id),
+    CONSTRAINT fk_game
+        FOREIGN KEY(game)
+        REFERENCES tabletops(id)
 )
