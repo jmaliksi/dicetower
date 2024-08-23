@@ -17,10 +17,7 @@ async fn index() -> &'static str {
 async fn rocket() -> _ {
     dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not set!");
-    let figment = rocket::Config::figment().merge((
-        "databases.dicetower.url",
-        db_url,
-    ));
+    let figment = rocket::Config::figment().merge(("databases.dicetower.url", db_url));
     rocket::custom(figment)
         .attach(services::stage())
         .attach(services::tabletop::stage())
