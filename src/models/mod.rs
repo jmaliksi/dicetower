@@ -18,6 +18,13 @@ pub struct Tabletop {
     pub created_at: std::time::SystemTime,
 }
 
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(table_name = tabletops)]
+pub struct NewTabletop {
+    pub name: String,
+    pub user_id: i32,
+}
+
 #[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Deserialize)]
 #[diesel(belongs_to(Tabletop, foreign_key = tabletop_id))]
 #[diesel(belongs_to(User, foreign_key = user_id))]
@@ -43,6 +50,23 @@ pub struct Card {
     pub id: i32,
     pub archetype_id: i32,
     pub name: String,
+    pub body: Option<String>,
+    pub image: Option<String>,
+}
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(table_name = cards)]
+pub struct NewCard {
+    pub archetype_id: i32,
+    pub name: String,
+    pub body: Option<String>,
+    pub image: Option<String>,
+}
+
+#[derive(AsChangeset, Serialize, Deserialize)]
+#[diesel(table_name = cards)]
+pub struct CardUpdate {
+    pub name: Option<String>,
     pub body: Option<String>,
     pub image: Option<String>,
 }

@@ -1,31 +1,20 @@
 use super::{Db, Result};
-use crate::models::Tabletop;
-use crate::schema::tabletops::dsl::{id, name, tabletops, user_id};
+use crate::models::{NewTabletop, Tabletop};
+use crate::schema::tabletops::dsl::{id, tabletops, user_id};
 use rocket::fairing::AdHoc;
 use rocket::{get, post};
-use rocket::{
-    response::status::Created,
-    serde::{json::Json, Deserialize, Serialize},
-};
+use rocket::{response::status::Created, serde::json::Json};
 use rocket_db_pools::diesel::prelude::*;
 use rocket_db_pools::Connection;
-
-#[derive(Serialize, Deserialize)]
-pub struct NewTabletop {
-    name: String,
-    user_id: i32,
-}
 
 #[post("/", format = "json", data = "<req>")]
 async fn create_tabletop(
     mut db: Connection<Db>,
     req: Json<NewTabletop>,
 ) -> Result<Created<Json<Tabletop>>> {
-    let n = req.name.to_string();
-    let uid = req.user_id;
     // TODO name validation
     let result = diesel::insert_into(tabletops)
-        .values((name.eq(&n), user_id.eq(&uid)))
+        .values(req.into_inner())
         .returning(Tabletop::as_returning())
         .get_result(&mut db)
         .await?;
