@@ -42,6 +42,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    spread (id) {
+        id -> Int4,
+        created_at -> Timestamp,
+        tabletop_id -> Int4,
+        player_id -> Nullable<Int4>,
+        #[max_length = 40]
+        name -> Nullable<Varchar>,
+        state -> Jsonb,
+        private -> Bool,
+    }
+}
+
+diesel::table! {
     tabletops (id) {
         id -> Int4,
         user_id -> Int4,
@@ -62,6 +75,8 @@ diesel::joinable!(decks -> deck_archetypes (archetype_id));
 diesel::joinable!(decks -> tabletops (tabletop_id));
 diesel::joinable!(players -> tabletops (tabletop_id));
 diesel::joinable!(players -> users (user_id));
+diesel::joinable!(spread -> players (player_id));
+diesel::joinable!(spread -> tabletops (tabletop_id));
 diesel::joinable!(tabletops -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -69,6 +84,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     deck_archetypes,
     decks,
     players,
+    spread,
     tabletops,
     users,
 );
