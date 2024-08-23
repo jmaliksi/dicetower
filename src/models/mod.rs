@@ -1,6 +1,6 @@
 use super::schema::*;
 use diesel::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Identifiable, Insertable)]
 #[diesel(table_name = users)]
@@ -36,7 +36,7 @@ pub struct DeckArchetype {
     pub name: String,
 }
 
-#[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Identifiable, Associations, Insertable, Serialize, Deserialize)]
 #[diesel(belongs_to(DeckArchetype, foreign_key = archetype_id))]
 #[diesel(table_name = cards)]
 pub struct Card {

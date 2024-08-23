@@ -1,11 +1,14 @@
+use super::{Db, Result};
 use crate::models::Tabletop;
-use crate::schema::tabletops::dsl::{tabletops, id, name, user_id};
+use crate::schema::tabletops::dsl::{id, name, tabletops, user_id};
 use rocket::fairing::AdHoc;
 use rocket::{get, post};
-use super::{Db, Result};
-use rocket::{response::status::{Created, NotFound}, serde::{json::Json, Deserialize, Serialize}};
-use rocket_db_pools::Connection;
+use rocket::{
+    response::status::Created,
+    serde::{json::Json, Deserialize, Serialize},
+};
 use rocket_db_pools::diesel::prelude::*;
+use rocket_db_pools::Connection;
 
 #[derive(Serialize, Deserialize)]
 pub struct NewTabletop {
@@ -14,7 +17,10 @@ pub struct NewTabletop {
 }
 
 #[post("/", format = "json", data = "<req>")]
-async fn create_tabletop(mut db: Connection<Db>, req: Json<NewTabletop>) -> Result<Created<Json<Tabletop>>> {
+async fn create_tabletop(
+    mut db: Connection<Db>,
+    req: Json<NewTabletop>,
+) -> Result<Created<Json<Tabletop>>> {
     let n = req.name.to_string();
     let uid = req.user_id;
     // TODO name validation
@@ -43,17 +49,15 @@ async fn get_tabletop(mut db: Connection<Db>, ttid: i32) -> Result<Json<Tabletop
         .filter(id.eq(&ttid))
         .select(Tabletop::as_select())
         .first(&mut db)
-        .await
-        .optional();
-    match result{
-        Ok(Some(result)) => Ok(Json(result)),
-        Ok(None) => Err(NotFound),
-        Err(_) => panic!("aa"),
-    }
+        .await?;
+    Ok(Json(result))
 }
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("tabletop routes", |rocket| async {
-        rocket.mount("/tabletops", rocket::routes![create_tabletop, get_tabletops, get_tabletop])
+        rocket.mount(
+            "/tabletops",
+            rocket::routes![create_tabletop, get_tabletops, get_tabletop],
+        )
     })
 }

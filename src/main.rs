@@ -24,5 +24,6 @@ async fn rocket() -> _ {
     rocket::custom(figment)
         .attach(services::stage())
         .attach(services::tabletop::stage())
+        .attach(services::decks::stage())
         .mount("/", rocket::routes![index])
 }

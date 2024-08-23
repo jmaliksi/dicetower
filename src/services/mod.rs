@@ -4,6 +4,7 @@ use rocket_db_pools::diesel::PgPool;
 use rocket_db_pools::Database;
 
 pub mod tabletop;
+pub mod decks;
 
 type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
 
