@@ -35,12 +35,12 @@ async fn create_card(
     Ok(Created::new("/").body(Json(result)))
 }
 
-#[get("/?<aid>")]
-async fn get_cards(mut db: Connection<Db>, aid: Option<i32>) -> Result<Json<Vec<Card>>> {
-    use crate::schema::cards::dsl::{archetype_id, cards};
+#[get("/?<archetype_id>")]
+async fn get_cards(mut db: Connection<Db>, archetype_id: Option<i32>) -> Result<Json<Vec<Card>>> {
+    use crate::schema::cards::dsl::{archetype_id as aid, cards};
     let mut query = cards.select(Card::as_select()).into_boxed();
-    if let Some(a) = aid {
-        query = query.filter(archetype_id.eq(a));
+    if let Some(a) = archetype_id {
+        query = query.filter(aid.eq(a));
     }
     let results = query.load(&mut db).await?;
     Ok(Json(results))
