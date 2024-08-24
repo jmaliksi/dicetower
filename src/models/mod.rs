@@ -8,7 +8,7 @@ pub struct User {
     pub id: i32,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Insertable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Identifiable, Serialize, Deserialize)]
 #[diesel(belongs_to(User, foreign_key = user_id))]
 #[diesel(table_name = tabletops)]
 pub struct Tabletop {
@@ -25,7 +25,7 @@ pub struct NewTabletop {
     pub user_id: i32,
 }
 
-#[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Deserialize)]
+#[derive(Queryable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(belongs_to(Tabletop, foreign_key = tabletop_id))]
 #[diesel(belongs_to(User, foreign_key = user_id))]
 #[diesel(table_name = players)]
@@ -36,14 +36,14 @@ pub struct Player {
     pub tabletop_id: i32,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Insertable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Identifiable, Serialize, Deserialize)]
 #[diesel(table_name = deck_archetypes)]
 pub struct DeckArchetype {
     pub id: i32,
     pub name: String,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Associations, Insertable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(belongs_to(DeckArchetype, foreign_key = archetype_id))]
 #[diesel(table_name = cards)]
 pub struct Card {
@@ -71,7 +71,7 @@ pub struct CardUpdate {
     pub image: Option<String>,
 }
 
-#[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Deserialize)]
+#[derive(Queryable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(belongs_to(DeckArchetype, foreign_key = archetype_id))]
 #[diesel(belongs_to(Tabletop, foreign_key = tabletop_id))]
 #[diesel(table_name = decks)]

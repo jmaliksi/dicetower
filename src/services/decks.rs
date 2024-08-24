@@ -8,11 +8,12 @@ use rocket_db_pools::diesel::prelude::*;
 use rocket_db_pools::Connection;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{Card, CardUpdate, NewCard};
+use crate::models::{Card, CardUpdate, DeckArchetype, NewCard};
 
 use super::{Db, Result};
 
 use crate::schema::cards::dsl::cards;
+use crate::schema::deck_archetypes::dsl::deck_archetypes;
 
 #[post("/", format = "json", data = "<req>")]
 async fn create_card(mut db: Connection<Db>, req: Json<NewCard>) -> Result<Created<Json<Card>>> {
@@ -49,7 +50,7 @@ async fn update_card(
     Ok(Accepted(Json(result)))
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct NewArchetypeCard {
     name: String,
     body: Option<String>,
@@ -62,11 +63,51 @@ pub struct NewArchetypeRequest {
     cards: Vec<NewArchetypeCard>,
 }
 
+#[post("/", format = "json", data = "<req>")]
+async fn create_archetype(
+    mut db: Connection<Db>,
+    req: Json<NewArchetypeRequest>,
+) -> Result<Created<Json<DeckArchetype>>> {
+    use crate::schema::deck_archetypes::dsl::name;
+    let daname = req.name.to_string();
+    let inserted_arch = db
+        .transaction::<DeckArchetype, diesel::result::Error, _>(|mut conn| {
+            Box::pin(async move {
+                let da = diesel::insert_into(deck_archetypes)
+                    .values(name.eq(daname))
+                    .returning(DeckArchetype::as_returning())
+                    .get_result(&mut conn)
+                    .await?;
+                let daid = da.id;
+                let newcards: Vec<NewCard> = req
+                    .cards
+                    .clone()
+                    .into_iter()
+                    .map(|c| NewCard {
+                        archetype_id: daid,
+                        name: c.name,
+                        body: c.body,
+                        image: c.image,
+                    })
+                    .collect();
+                diesel::insert_into(cards)
+                    .values(newcards)
+                    .execute(&mut conn)
+                    .await?;
+                Ok(da)
+            })
+        })
+        .await?;
+    Ok(Created::new("/").body(Json(inserted_arch)))
+}
+
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("card and deck routes", |rocket| async {
-        rocket.mount(
-            "/cards",
-            rocket::routes![create_card, get_cards, update_card],
-        )
+        rocket
+            .mount(
+                "/cards",
+                rocket::routes![create_card, get_cards, update_card],
+            )
+            .mount("/archetypes/decks", rocket::routes![create_archetype])
     })
 }
