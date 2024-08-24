@@ -101,6 +101,15 @@ async fn create_archetype(
     Ok(Created::new("/").body(Json(inserted_arch)))
 }
 
+#[get("/")]
+async fn get_deck_archetypes(mut db: Connection<Db>) -> Result<Json<Vec<DeckArchetype>>> {
+    let result = deck_archetypes
+        .select(DeckArchetype::as_select())
+        .get_results(&mut db)
+        .await?;
+    Ok(Json(result))
+}
+
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("card and deck routes", |rocket| async {
         rocket
@@ -108,6 +117,9 @@ pub fn stage() -> AdHoc {
                 "/cards",
                 rocket::routes![create_card, get_cards, update_card],
             )
-            .mount("/archetypes/decks", rocket::routes![create_archetype])
+            .mount(
+                "/archetypes/decks",
+                rocket::routes![create_archetype, get_deck_archetypes],
+            )
     })
 }
