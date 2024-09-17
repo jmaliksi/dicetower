@@ -1,4 +1,4 @@
-use super::schema::*;
+use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -72,14 +72,34 @@ pub struct CardUpdate {
 }
 
 #[derive(Queryable, Identifiable, Associations, Serialize, Deserialize)]
-#[diesel(belongs_to(DeckArchetype, foreign_key = archetype_id))]
 #[diesel(belongs_to(Tabletop, foreign_key = tabletop_id))]
-#[diesel(table_name = decks)]
-pub struct Deck {
+#[diesel(belongs_to(Player, foreign_key = player_id))]
+#[diesel(table_name = spread)]
+pub struct Spread {
     pub id: i32,
-    pub name: String,
+    pub created_at: std::time::SystemTime,
     pub tabletop_id: i32,
-    pub archetype_id: i32,
-    pub draw_pile: Option<Vec<i32>>,
-    pub discard_pile: Option<Vec<i32>>,
+    pub player_id: Option<i32>,
+    pub name: Option<String>,
+    pub private: bool,
+    pub state: serde_json::Value,
+}
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[diesel(table_name = spread)]
+pub struct NewSpread {
+    pub tabletop_id: i32,
+    pub player_id: Option<i32>,
+    pub name: Option<String>,
+    pub private: bool,
+    pub state: serde_json::Value,
+}
+
+#[derive(AsChangeset, Serialize, Deserialize)]
+#[diesel(table_name = spread)]
+pub struct SpreadUpdate {
+    pub player_id: Option<i32>,
+    pub name: Option<String>,
+    pub private: Option<bool>,
+    pub state: Option<serde_json::Value>,
 }
